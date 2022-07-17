@@ -93,104 +93,65 @@ Input:	#Thuc hien doc ki tu tu ban phim nhap vao bang cach luu vao thanh ghi $t0
 Pause:	#vi thanh ghi $a0 trung voi bien so x0 nen de syscall 32 thi phai su dung stack de luu tam thoi gia tri $a0
 	addiu $sp,$sp,-4
 	sw $a0, ($sp)
-	li $a0,1		# speed = 0ms
+	li $a0,0		# speed = 0ms
 	li $v0, 32	 	#syscall sleep
 	syscall
     
 	lw $a0,($sp)		#tra lai gia tri $a0
 	addiu $sp,$sp,4
 	jr $ra
-DrawCircle:#Using Midpoint Circle Algorithm
-    	#MAKE ROOM ON STACK
-    	addi        $sp, $sp, -4      #Make room on stack for 1 words
-   	sw      $ra, 0($sp)     #Store $ra on element 0 of stack
+	
+	
+DrawCircle:   	
+    	addi $sp, $sp, -4    
+   	sw $ra, 0($sp)     
+    	add $t1, $a3, $0            
+    	add $t0, $0, $0             
+    	add $t2, $0, $0              
 
-    	#VARIABLES
-    	add $a0, $a0, $0 #x0
-    	add $a1, $a1, $0 #y0
-    	add $a3, $a3, $0 #radius
-    	add $t1, $a3, $0            #x
-    	add $t0, $0, $0              #y
-    	add $t2, $0, $0              #Err
 
-    	#While(x >= y)
 circleLoop:
-    	blt         $t1, $t0, skipCircleLoop    #If x < y, skip circleLoop
-
-	#s5 = a0, s6 = a1
-    	#Draw Dot (x0 + x, y0 + y)
+    	blt $t1, $t0, Break  
     	addu $s5, $a0, $t1
     	addu $s6, $a1, $t0
-    	jal  drawDot             #Jump to drawDot
+    	jal  drawDot             
 
-        #Draw Dot (x0 + y, y0 + x)
-        addu $s5, $a0, $t0
-        addu $s6, $a1, $t1
-        jal  drawDot             #Jump to drawDot
 
-        #Draw Dot (x0 - y, y0 + x)
-        subu $s5, $a0, $t0
-        addu $s6, $a1, $t1
-        jal  drawDot             #Jump to drawDot
+    	If:
+    	bgtz $t2, Else
+    	addi $t0, $t0, 1  
+    	sll $t8, $t0, 1			
+    	addi $t8, $t8, 1		
+    	addu $t2, $t2, $t8		
+    	j circleLoop      
 
-        #Draw Dot (x0 - x, y0 + y)
-        subu $s5, $a0, $t1
-        addu $s6, $a1, $t0
-        jal  drawDot             #Jump to drawDot
-
-        #Draw Dot (x0 - x, y0 - y)
-        subu $s5, $a0, $t1
-        subu $s6, $a1, $t0
-        jal  drawDot             #Jump to drawDot
-
-        #Draw Dot (x0 - y, y0 - x)
-        subu $s5, $a0, $t0
-        subu $s6, $a1, $t1
-        jal  drawDot             #Jump to drawDot
-
-        #Draw Dot (x0 + y, y0 - x)
-        addu $s5, $a0, $t0
-        subu $s6, $a1, $t1
-        jal  drawDot             #Jump to drawDot
-
-        #Draw Dot (x0 + x, y0 - y)
-        addu $s5, $a0, $t1
-        subu $s6, $a1, $t0
-        jal drawDot             #Jump to drawDot
-
-    	#If (err <= 0)
-    	bgtz $t2, doElse
-    	addi $t0, $t0, 1     #y++
-    	sll $t8, $t0, 1			#Bitshift y left 1	
-    	addi $t8, $t8, 1		#2y + 1
-    	addu $t2, $t2, $t8		#Add  e + (2y + 1)
-    	j       circleContinue      #Skip else stmt
-
-    	#Else If (err > 0)
-    	doElse:
-    	addi $t1, $t1, -1        #x--   	
-	sll $t8, $t1, 1			#Bitshift x left 1
-    	addi $t8, $t8, 1		#2x + 1
-    	subu $t2, $t2, $t8		#Subtract e - (2x + 1)
-	j circleContinue
+    	
+    	Else:
+    	addi $t1, $t1, -1          	
+	sll $t8, $t1, 1			
+    	addi $t8, $t8, 1		
+    	subu $t2, $t2, $t8		
+	j circleLoop
+	
+	
+	
 circleContinue:
-    	#LOOP
     	j circleLoop
-
-    	#CONTINUE
-    	skipCircleLoop:     
-
-    	#RESTORE $RA
-    	lw $ra, 0($sp)     #Restore $ra from stack
-    	addiu $sp, $sp, 4        #Readjust stack
+    	
+    	
+    	
+Break:     
+    	lw $ra, 0($sp)     
+    	addiu $sp, $sp, 4        
     	jr $ra
     	nop
+    	
+    	
 drawDot:
-    	#li $a2, YELLOW
-    	add $at, $s6, $0
-    	sll $at, $at, 9        # calculate offset in $at: at = y_pos * 512
-    	add $at, $at, $s5       # at = y_pos * 512 + x_pos = "index"
-    	sll $at, $at, 2         # at = (y_pos * 512 + x_pos)*4 = "offset"
-    	add $at, $at, $v1       # at = v1 + offset
-    	sw $a2, ($at)          # draw it!
+    	add $s1, $s6, $0
+    	sll $s1, $s1, 9        
+    	add $s1, $s1, $s5       
+    	sll $s1, $s1, 2         
+    	add $s1, $s1, $v1       
+    	sw $a2, ($s1)         
     	jr $ra
