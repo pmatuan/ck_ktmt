@@ -26,10 +26,10 @@ addi	$s7, $0, 512		#Chiều dài và chiều rộng di chuyển
 jal 	DrawCircle	
 nop
 moving:		#Thực hiện di chuyển bóng
-	beq $t0,97,left		#$t0 = 'a'
-	beq $t0,100,right	#$t0 = 'd'
-	beq $t0,115,down	#$t0 = 's'
-	beq $t0,119,up		#$t0 = 'w'
+	beq $t1,97,left		#$t1 = 'a'
+	beq $t1,100,right	#$t1 = 'd'
+	beq $t1,115,down	#$t1 = 's'
+	beq $t1,119,up		#$t1 = 'w'
 	j Input		
 	left:	#Thuc hien di chuyen sang trai
 		li $a2,BLACK	#color = black
@@ -87,8 +87,8 @@ moving:		#Thực hiện di chuyển bóng
 		li $t3, 119	#Gan $t3 voi 'w' roi luu vao dia chi $k0 
 		sw $t3,0($k0)
 		j Input
-Input:	#Thuc hien doc ki tu tu ban phim nhap vao bang cach luu vao thanh ghi $t0
-	ReadKey: lw $t0, 0($k0) # $t0 = [$k0] = KEY_CODE
+Input:	#Thuc hien doc ki tu tu ban phim nhap vao bang cach luu vao thanh ghi $t1
+	ReadKey: lw $t1, 0($k0) # $t1 = [$k0] = KEY_CODE
 	j moving
 
 Pause:	#vi thanh ghi $a0 trung voi bien so x0 nen de syscall 32 thi phai su dung stack de luu tam thoi gia tri $a0
@@ -107,67 +107,67 @@ DrawCircle:#Using Midpoint Circle Algorithm
     	#MAKE ROOM ON STACK
     	addi        $sp, $sp, -4      #Make room on stack for 1 words
    	sw      $ra, 0($sp)     #Store $ra on element 0 of stack
-    	add $t1, $a3, $0            #x
-    	add $t0, $0, $0              #y
+    	add $t0, $a3, $0            #x
+    	add $t1, $0, $0              #y
     	add $t2, $0, $0              #Err
 
     	#While(x >= y)
 circleLoop:
-    	blt $t1, $t0, Break    #If x < y, skip circleLoop
+    	blt $t0, $t1, Break    #If x < y, skip circleLoop
 
 	#s5 = a0, s6 = a1
     	#Draw Dot (x0 + x, y0 + y)
-    	addu $s5, $a0, $t1
-    	addu $s6, $a1, $t0
+    	addu $s5, $a0, $t0
+    	addu $s6, $a1, $t1
     	jal  drawDot             #Jump to drawDot
 
         #Draw Dot (x0 + y, y0 + x)
-        addu $s5, $a0, $t0
-        addu $s6, $a1, $t1
+        addu $s5, $a0, $t1
+        addu $s6, $a1, $t0
         jal  drawDot             #Jump to drawDot
 
         #Draw Dot (x0 - y, y0 + x)
-        subu $s5, $a0, $t0
-        addu $s6, $a1, $t1
-        jal  drawDot             #Jump to drawDot
-
-        #Draw Dot (x0 - x, y0 + y)
         subu $s5, $a0, $t1
         addu $s6, $a1, $t0
         jal  drawDot             #Jump to drawDot
 
-        #Draw Dot (x0 - x, y0 - y)
-        subu $s5, $a0, $t1
-        subu $s6, $a1, $t0
+        #Draw Dot (x0 - x, y0 + y)
+        subu $s5, $a0, $t0
+        addu $s6, $a1, $t1
         jal  drawDot             #Jump to drawDot
 
-        #Draw Dot (x0 - y, y0 - x)
+        #Draw Dot (x0 - x, y0 - y)
         subu $s5, $a0, $t0
         subu $s6, $a1, $t1
         jal  drawDot             #Jump to drawDot
 
+        #Draw Dot (x0 - y, y0 - x)
+        subu $s5, $a0, $t1
+        subu $s6, $a1, $t0
+        jal  drawDot             #Jump to drawDot
+
         #Draw Dot (x0 + y, y0 - x)
-        addu $s5, $a0, $t0
-        subu $s6, $a1, $t1
+        addu $s5, $a0, $t1
+        subu $s6, $a1, $t0
         jal  drawDot             #Jump to drawDot
 
         #Draw Dot (x0 + x, y0 - y)
-        addu $s5, $a0, $t1
-        subu $s6, $a1, $t0
+        addu $s5, $a0, $t0
+        subu $s6, $a1, $t1
         jal drawDot             #Jump to drawDot
 
     	IF:#If (err <= 0)
     	bgtz $t2, Else
-    	addi $t0, $t0, 1     #y++
-    	sll $t8, $t0, 1			#Bitshift y left 1	
+    	addi $t1, $t1, 1     #y++
+    	sll $t8, $t1, 1			#Bitshift y left 1	
     	addi $t8, $t8, 1		#2y + 1
     	addu $t2, $t2, $t8		#Add  e + (2y + 1)
     	j circleLoop      #Skip else stmt
 
     	#Else If (err > 0)
     	Else:
-    	addi $t1, $t1, -1        #x--   	
-	sll $t8, $t1, 1			#Bitshift x left 1
+    	addi $t0, $t0, -1        #x--   	
+	sll $t8, $t0, 1			#Bitshift x left 1
     	addi $t8, $t8, 1		#2x + 1
     	subu $t2, $t2, $t8		#Subtract e - (2x + 1)
 	j circleLoop

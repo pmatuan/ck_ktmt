@@ -446,7 +446,7 @@ ROTATE: 		#backup
 		#processing
 		li $t1, HEADING # change HEADING port
 		la $t2, nowHeading
-		lw $t3, 0($t2)	#$t3 is hướng at now
+		lw $t3, 0($t2)	#$t3 is heading at now
  		sw $t3, 0($t1) # to rotate robot
  		#restore
  		lw $t3, 0($sp)
