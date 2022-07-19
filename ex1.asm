@@ -46,7 +46,7 @@
 	GO_BACK_CODE: .asciiz "999"
 	WRONG_CODE: .asciiz "Wrong control code!"
 #-------------------------------------------------------------------------------
-	inputControlCode: .space 50
+	inputControlCode: .space 50	
 	lengthControlCode: .word 0
 	nowHeading: .word 0
 #-------------------------------------------------------------------------------
